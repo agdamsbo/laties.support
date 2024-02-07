@@ -90,7 +90,8 @@ export_ical <- function(data, assessor = "hvem_indtaster", dir = here::here("dat
 
 #' Commit and push .ics calendar file
 #'
-#' @param ics.path
+#' @param f.path file paths(s)
+#' @param c.message commit message
 #'
 #' @return
 git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date())) {
@@ -114,7 +115,7 @@ git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date()
 #'
 laties.db2cal <- function(){
   calendar_data() |> data_mod() |> export_ical()
-  list.files(here::here("data"),pattern = ".ics$") |> git_commit_push()
+  list.files(here::here("data"),pattern = ".ics$")[[1]] |> git_commit_push()
 }
 
 
