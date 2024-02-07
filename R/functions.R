@@ -15,7 +15,7 @@ calendar_data <- function() {
       "arrivaltime",
       "hvem_indtaster"
     )
-  )
+  )[[1]]
 }
 
 #' Title
@@ -29,9 +29,7 @@ calendar_data <- function() {
 #' data <- ds
 data_mod <- function(data) {
   data |> dplyr::mutate(
-    followup = lubridate::as_date((arrivaltime) + lubridate::dmonths(3))+lubridate::hours(9),
-    location = "PHONE"
-  )
+    followup = lubridate::as_date(arrivaltime + lubridate::dmonths(3))+lubridate::hours(9))
 }
 
 #' Small wrapper for if_else in glue string
@@ -54,7 +52,7 @@ glue_if <- function(data){
 #'
 #' @examples
 laties_cal <- function(data){
-  data |> ds2ical(
+  data |> REDCapCAST::ds2ical(
     start = followup,
     end = followup,
     location = NULL,
@@ -96,7 +94,7 @@ export_ical <- function(data, assessor = "hvem_indtaster", dir = here::here("dat
 #'
 #' @return
 git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date())) {
-  f.path |> lapply(git2r::add)
+  git2r::add(path = f.path)
   # Suppressing error if nothing to commit
   tryCatch(git2r::commit(message = c.message), error = function(e) {})
   git2r::push(
@@ -111,9 +109,12 @@ git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date()
 #'
 #' @return
 #' @export
+#' @examples
+#' laties.db2cal()
+#'
 laties.db2cal <- function(){
   calendar_data() |> data_mod() |> export_ical()
-  list.files(here::here("data"),pattern = ".ics$")
+  list.files(here::here("data"),pattern = ".ics$") |> git_commit_push()
 }
 
 
