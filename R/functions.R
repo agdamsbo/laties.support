@@ -1,10 +1,12 @@
+# renv::install(paste0("agdamsbo/",c("REDCapCAST","stRoke")))
+
 #' Get data for calendar generation
 #'
 #' @return tibble
 #' @export
 #'
 #' @examples
-#' ds <- calendar_data()
+#' # ds <- calendar_data()
 calendar_data <- function() {
   REDCapCAST::easy_redcap(
     project.name = "laties.support",
@@ -18,15 +20,15 @@ calendar_data <- function() {
   )[[1]]
 }
 
-#' Title
+#' Simple data modification
 #'
-#' @param data
+#' @param data data set
 #'
-#' @return
+#' @return tibble
 #' @export
 #'
 #' @examples
-#' data <- ds
+#' # data <- ds
 data_mod <- function(data) {
   data |> dplyr::mutate(
     followup = lubridate::as_date(arrivaltime + lubridate::dmonths(3))+lubridate::hours(9))
@@ -45,14 +47,13 @@ glue_if <- function(data){
 
 #' Standard function to create ical
 #'
-#' @param data
+#' @param data data set
 #'
-#' @return
+#' @return tibble
 #' @export
 #'
-#' @examples
 laties_cal <- function(data){
-  data |> REDCapCAST::ds2ical(
+  data |> stRoke::ds2ical(
     start = followup,
     end = followup,
     location = NULL,
@@ -62,17 +63,17 @@ laties_cal <- function(data){
 
 #' Creates
 #'
-#' @param data
-#' @param assessor
-#' @param dir
-#' @param base.name
+#' @param data data set
+#' @param assessor assessor var
+#' @param dir output dir
+#' @param base.name file base name
 #'
-#' @return
+#' @return NULL
 #' @export
 #'
 #' @examples
-#' data <- ds |> data_mod()
-#' data |> export_ical()
+#' # data <- ds |> data_mod()
+#' # data |> export_ical()
 export_ical <- function(data, assessor = "hvem_indtaster", dir = here::here("data/"), base.name = "laties_followup") {
   if (!is.null({{assessor}})) {
     data |> split(REDCapCAST::clean_redcap_name(data[[{{assessor}}]])) |>
@@ -93,7 +94,8 @@ export_ical <- function(data, assessor = "hvem_indtaster", dir = here::here("dat
 #' @param f.path file paths(s)
 #' @param c.message commit message
 #'
-#' @return
+#' @return NULL
+#' @export
 git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date())) {
   git2r::add(path = f.path)
   # Suppressing error if nothing to commit
@@ -108,14 +110,19 @@ git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date()
 
 #' All in one
 #'
-#' @return
+#' @return NULL
 #' @export
 #' @examples
-#' laties.db2cal()
-#'
+#' # laties.db2cal()
 laties.db2cal <- function(){
   calendar_data() |> data_mod() |> export_ical()
-  list.files(here::here("data"),pattern = ".ics$")[[1]] |> git_commit_push()
+  # list.files(here::here("data"),pattern = ".ics$")[[1]] |> git_commit_push()
+  system("git add *.ics")
+
+  git2r::commit(all=TRUE, message=paste("calendar update",Sys.time()))
+
+  system("/usr/bin/git push origin HEAD:refs/heads/main")
+
 }
 
 
