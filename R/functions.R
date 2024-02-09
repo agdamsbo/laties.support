@@ -72,7 +72,7 @@ laties_cal <- function(data){
 #' @export
 #'
 #' @examples
-#' # data <- ds |> data_mod()
+#' # data <- calendar_data() |> data_mod()
 #' # data |> export_ical()
 export_ical <- function(data, assessor = "hvem_indtaster", dir = here::here("data/"), base.name = "laties_followup") {
   if (!is.null({{assessor}})) {
@@ -96,16 +96,23 @@ export_ical <- function(data, assessor = "hvem_indtaster", dir = here::here("dat
 #'
 #' @return NULL
 #' @export
-git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date())) {
-  git2r::add(path = f.path)
-  # Suppressing error if nothing to commit
-  tryCatch(git2r::commit(message = c.message), error = function(e) {})
-  git2r::push(
-    name = "origin",
-    refspec = "refs/heads/main",
-    credentials = git2r::cred_ssh_key(),
-    set_upstream = FALSE
-  )
+git_commit_push <- function(#f.path,
+                            c.message=paste("calendar update",Sys.time())) {
+  # git2r::add(path = f.path)
+  # # Suppressing error if nothing to commit
+  # tryCatch(git2r::commit(message = c.message), error = function(e) {})
+  # git2r::push(
+  #   name = "origin",
+  #   refspec = "refs/heads/main",
+  #   credentials = git2r::cred_ssh_key(),
+  #   set_upstream = FALSE
+  # )
+
+  system("git add *.ics")
+
+  git2r::commit(message=c.message)
+
+  system("git push origin HEAD:refs/heads/main")
 }
 
 #' All in one
@@ -117,13 +124,6 @@ git_commit_push <- function(f.path, c.message=paste("calendar update",Sys.Date()
 laties.db2cal <- function(){
   calendar_data() |> data_mod() |> export_ical()
   # list.files(here::here("data"),pattern = ".ics$")[[1]] |> git_commit_push()
-  system("git add *.ics")
-
-  git2r::commit(all=TRUE, message=paste("calendar update",Sys.time()))
-
-  system("/usr/bin/git push origin HEAD:refs/heads/main")
+  git_commit_push()
 
 }
-
-
-
