@@ -19,6 +19,8 @@ library(laties.support)
 laties.db2cal()
 ```
 
-[Open this link](webcal://raw.githubusercontent.com/agdamsbo/laties.support/main/data/laties_followup_all.ics) to subscribe to the total calendar.
+Copy and paste this link into your browsers address field or your calendar provider:
 
-Alternatively, copy this link into your calendar provider: `webcal://raw.githubusercontent.com/agdamsbo/laties.support/main/data/laties_followup_all.ics`.
+```
+webcal://raw.githubusercontent.com/agdamsbo/laties.support/main/data/laties_followup_all.ics
+```
